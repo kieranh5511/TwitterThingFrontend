@@ -11,7 +11,7 @@ import Alamofire
 import SwiftyJSON
 
 class DataController {
-    let url = "https://randomuser.me/api/"
+    let url = "http://twitter-sentiment-play-dd62f3cf.ragnarula.svc.tutum.io/"
     var previousSentiment : [String: Double]
 
     init() {
@@ -19,7 +19,7 @@ class DataController {
     }
     
     func getData(updateCallback: JSON -> Void) {
-        Alamofire.request(.GET, url).validate().responseJSON {response in
+        Alamofire.request(.GET, url + "sentiment/").validate().responseJSON {response in
             if (response.result.isSuccess) {
                 if let response = response.result.value {
                     var json = JSON(response)
@@ -43,11 +43,22 @@ class DataController {
     }
     
     func removeHashtag(hashtag : String) {
-        Alamofire.request(.DELETE, url, parameters: ["hashtag": hashtag])
+        let escapedHashtag = hashtag.stringByAddingPercentEncodingWithAllowedCharacters
+        Alamofire.request(.DELETE, "\(url)follow/\(escapedHashtag)", parameters: [:], encoding: .URL)
         previousSentiment[hashtag] = nil
     }
     
     func followHashtag(hashtag : String) {
-        Alamofire.request(.POST, url, parameters: ["hashtag": hashtag])
+        followHashtags([hashtag])
+    }
+    
+    func followHashtags(hashtags : [String]) {
+        let request = NSMutableURLRequest(URL: NSURL(string: "\(url)follow/")!)
+        request.HTTPMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        request.HTTPBody = try! NSJSONSerialization.dataWithJSONObject(hashtags, options: [])
+        
+        Alamofire.request(request)
     }
 }
