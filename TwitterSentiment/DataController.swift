@@ -44,7 +44,7 @@ class DataController {
     
     func removeHashtag(hashtag : String) {
         let escapedHashtag = hashtag.stringByAddingPercentEncodingWithAllowedCharacters
-        Alamofire.request(.DELETE, "\(url)follow/\(escapedHashtag)", parameters: [:], encoding: .URL)
+        Alamofire.request(.DELETE, "\(url)follow/\(escapedHashtag)")
         previousSentiment[hashtag] = nil
     }
     
